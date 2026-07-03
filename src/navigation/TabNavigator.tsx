@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useMemo } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { HomeScreen } from '@/screens/HomeScreen';
 import { SearchScreen } from '@/screens/SearchScreen';
@@ -20,6 +21,7 @@ const ICONS: Record<keyof TabParamList, [IconName, IconName]> = {
 
 export function TabNavigator() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const screenOptions = useMemo(
     () =>
@@ -31,8 +33,8 @@ export function TabNavigator() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          height: 64 + insets.bottom,
+          paddingBottom: 8 + insets.bottom,
           paddingTop: 10,
         },
         tabBarLabelStyle: {
@@ -45,7 +47,7 @@ export function TabNavigator() {
           return <Ionicons name={focused ? active : inactive} size={size} color={color} />;
         },
       }),
-    [colors],
+    [colors, insets.bottom],
   );
 
   return (

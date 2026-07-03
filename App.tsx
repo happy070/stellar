@@ -1,20 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import './global.css';
 
-export default function App() {
+import { StatusBar } from 'expo-status-bar';
+import { useMemo } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {
+  MD3DarkTheme,
+  MD3LightTheme,
+  PaperProvider,
+  type MD3Theme,
+} from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { RootNavigator } from '@/navigation/RootNavigator';
+import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+
+/**
+ * Bridges our design tokens into React Native Paper so any Paper component
+ * (used for form controls / dialogs) inherits the active light/dark palette.
+ */
+function ThemedApp() {
+  const { colors, isDark } = useTheme();
+
+  const paperTheme = useMemo<MD3Theme>(() => {
+    const base = isDark ? MD3DarkTheme : MD3LightTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.accent,
+        background: colors.background,
+        surface: colors.surface,
+        onSurface: colors.textPrimary,
+        onBackground: colors.textPrimary,
+      },
+    };
+  }, [colors, isDark]);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider theme={paperTheme}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <RootNavigator />
+    </PaperProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <ThemedApp />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
